@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>.</title>
+    <style>
+      body {
+        font-family: "Courier New", monospace;
+        margin: 20px;
+      }
+      
+      .code-container {
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: #f7f7f7;
+      }
+      
+      button {
+        cursor: pointer;
+      }
+      code{
+        width: 0;height: 0;
+        margin: 0;padding: 0;
+        font-size: 0;display: inline;
+      }
+      pre{
+        height: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="code-container">
+      <!-- 1. No of words, spaces and lines -->
+      <pre id="codeBlock1">
+        <code>
+          %{
+            #include <stdio.h>
+            int num_spaces = 0;
+            int num_lines = 0;
+            int num_words = 0;
+            %}
+            %%
+            [ \t] { num_spaces++; }   // Count blank spaces and tabs
+            \n     { num_lines++; }    // Count newlines to track lines
+            [a-zA-Z]+ { num_words++; } // Count words (assuming words are made up of letters)
+            .      ;                   // Ignore other characters
+            %%
+            int main() {
+                FILE *file = fopen("character.txt", "r"); // Open the file in read mode
+                if (file == NULL) {
+                    perror("Error opening file");
+                    return 1;
+                }
+                yyin = file; // Set the input file for Lex
+                yylex();
+                fclose(file); // Close the file after reading
+                printf("Number of blank spaces: %d\n", num_spaces);
+                printf("Number of lines: %d\n", num_lines);
+                printf("Number of words: %d\n", num_words);
+                return 0;
+            }
+        </code>
+    </pre>
+      <button onclick="copyToClipboard('codeBlock1')">No of line,sp,words</button>
+    </div>
+
+
+<!-- Total vovels  -->
+    <div class="code-container">
+      <pre id="codeBlock2">
+        <code>
+            %{
+#include <stdio.h>
+int num_vowels = 0;
+int num_consonants = 0;
+%}
+
+%%
+[AaEeIiOoUu] { num_vowels++; }       // Count vowels
+[a-zA-Z]     { num_consonants++; }   // Count consonants
+.            ;                       // Ignore other characters
+
+%%
+
+intyywrap(void){}
+int main() {
+    yyin=fopen("vovels.txt","r");
+    yylex();
+
+    printf("Number of vowels: %d\n", num_vowels);
+    printf("Number of consonants: %d\n", num_consonants);
+    return 0;
+}
+
+        </code>
+    </pre>
+      <button onclick="copyToClipboard('codeBlock2')">Tot vovel and cons</button>
+    </div>
+
+
+<!-- Insert in symbol table -->
+    <div class="code-container">
+      <pre id="codeBlock3">
+        <code>
+          
+          #include stdio.h>
+            #include ctype.h>
+            #include stdlib.h>
+            #include string.h>
+            #include math.h>
+            
+            void main(){
+                int i=0,j=0,x=0,n;
+                void *p,*add[5];
+                char ch,srch,b[15],d[15],c;
+                printf("Expression terminated by $: ");
+                while((c=getchar())!='$'){
+                    b[i]=c;
+                    i++;
+                }
+            
+                n=i-1;
+                printf("Given Expression");
+                i=0;
+                while(i<=n){
+                    printf("%c",b[i]);
+                    i++;
+                }
+                printf("\nSymbol Table\n");
+                printf("\nSymbol \t addr \t type");
+                while(j<=n){
+                    c=b[j];
+                }
+                if(ispha(toascii(c))){
+                    p=malloc(c);
+                    add[x]=p;
+                    d[x]=c;
+                    printf("\n%c \t %d \t identifier \n",c,p);
+                    x++;j++;}
+            
+                else{
+                    ch=c;
+                    if(ch == '+'||ch=='-'||ch=='*'||ch=='='){
+                        p=malloc(ch);
+                        d[x]=ch;
+                        printf("\n%c\t%d\t operator\n",cp,p);
+                        x++;j++;
+                    
+                    }
+                }
+            
+            }
+            
+
+        </code>
+    </pre>
+      <button onclick="copyToClipboard('codeBlock3')">Symbol Table</button>
+    </div>
+
+
+
+<!-- YYAC to eval + - * / -->
+    <div class="code-container">
+      <pre id="codeBlock3">
+        <code>
+          
+          %{
+            #include stdio.h>
+            #include stdlib.h>
+            
+            int yylex(void);
+            void yyerror(const char *s);
+            int res = 0;
+            %}
+            
+            %token NUM
+            %left '+' '-'
+            %left '*' '/'
+            
+            %%
+            
+            Stmt: expr { res = $1; }
+            
+            expr    : expr '+' expr     { $$ = $1 + $3; }
+                    | expr '-' expr     { $$ = $1 - $3; }
+                    | expr '*' expr     { $$ = $1 * $3; }
+                    | expr '/' expr     { 
+                                            if ($3 == 0) {
+                                                fprintf(stderr, "Error: Division by zero\n");
+                                                exit(EXIT_FAILURE);
+                                            } else {
+                                                $$ = $1 / $3;
+                                            }
+                                        }
+                    | term              { $$ = $1; }
+                    ;
+            
+            term    : NUM               { $$ = $1; }
+                    ;
+            
+            %%
+            
+            int main() {
+                printf("Enter Expression: ");
+                yyparse();
+                printf("Result = %d\n", res);
+                exit(EXIT_SUCCESS);
+            }
+            
+            void yyerror(const char *s) {
+                printf("Error: %s\n", s);
+                exit(EXIT_FAILURE);
+            }
+            
+            
+
+        </code>
+    </pre>
+      <button onclick="copyToClipboard('codeBlock3')">YYAC to eval + - * </button>
+    </div>
+
+
+
+<!-- YYAC to eval + - * / -->
+    <div class="code-container">
+      <pre id="codeBlock4">
+        <code>
+          
+          %{
+            #include stdio.h>
+            #include stdlib.h>
+            
+            int yylex(void);
+            void yyerror(const char *s);
+            int res = 0;
+            %}
+            
+            %token NUM
+            %left '+' '-'
+            %left '*' '/'
+            
+            %%
+            
+            Stmt: expr { res = $1; }
+            
+            expr    : expr '+' expr     { $$ = $1 + $3; }
+                    | expr '-' expr     { $$ = $1 - $3; }
+                    | expr '*' expr     { $$ = $1 * $3; }
+                    | expr '/' expr     { 
+                                            if ($3 == 0) {
+                                                fprintf(stderr, "Error: Division by zero\n");
+                                                exit(EXIT_FAILURE);
+                                            } else {
+                                                $$ = $1 / $3;
+                                            }
+                                        }
+                    | term              { $$ = $1; }
+                    ;
+            
+            term    : NUM               { $$ = $1; }
+                    ;
+            
+            %%
+            
+            int main() {
+                printf("Enter Expression: ");
+                yyparse();
+                printf("Result = %d\n", res);
+                exit(EXIT_SUCCESS);
+            }
+            
+            void yyerror(const char *s) {
+                printf("Error: %s\n", s);
+                exit(EXIT_FAILURE);
+            }
+            
+          //Lex
+
+          %{
+            #include stdio.h>
+            #include stdlib.h>
+            #include"y.tab.h"
+        
+            extern int yylval;
+            %}
+        
+        %%
+        [0-9]+{yylval = atoi/yytext
+                return number;};
+        [\t]{;}
+        [\n]{return 0;}
+        .{return yytext[0];}
+        %%
+        int yywrap(){
+            return 1;
+        }
+
+        </code>
+    </pre>
+      <button onclick="copyToClipboard('codeBlock4')">YYAC to eval + - *</button>
+    </div>
+
+
+<!-- Check AnBn -->
+    <div class="code-container">
+      <pre id="codeBlock6">
+        <code>
+
+          %{
+            #include stdio.h>
+            #include stdlib.h>
+            int yylex(void);
+            int yyerror();
+            %}
+            
+            %token AB
+            %%
+            Stmt :s
+            ;
+            S:ASB
+            |
+            ;
+            %%
+            int main() {
+            
+                printf("Enter a string: ");
+                yyparse();
+                printf("Valid\n");
+                exit(0);}
+            
+            void yyerror(){
+                printf("Invalid\n");
+                exit(0);
+            }
+            
+            
+            //Lex
+            %{
+                #include stdio.h>
+                #include stdlib.h>
+                #include"y.tab.h"
+            %}
+            
+            %%
+            
+            "a"|"A"   {return A;}
+            "b"|"B"   {return B;}
+            
+            [\t]{;}
+            [\n]{return 0;}
+            .   {return yytext[0];}
+            %%
+            
+            int yywrap(){
+                return 1;
+            }
+        </code></pre>
+      <button onclick="copyToClipboard('codeBlock6')">Check AnBn</button>
+    </div>
+
+
+<!-- AnBnCnDn -->
+    <div class="code-container">
+      <pre id="codeBlock7">
+        <code>
+
+          %{
+            #include stdio.h>
+            #include stdlib.h>
+            int yylex(void);
+            void yyerror();
+            %}
+            
+            %token A B C D 
+            %%
+            Stmt : s ;
+            s    : AB CD { printf("Valid\n"); exit(0); }
+                  | s AB CD
+                  ;
+            AB   : 'a' | 'A' 'b' | 'B';
+            CD   : 'c' | 'C' 'd' | 'D';
+            %%
+            int main() {
+                printf("Enter a string: ");
+                yyparse();
+                printf("valid\n");
+                exit(0);
+            }
+            
+            void yyerror(const char *s){
+                printf("Invalid\n");
+                exit(0);
+            }
+            
+            //Lex
+            
+            
+            %{
+                #include stdio.h>
+                #include stdlib.h>
+                #include"y.tab.h"
+            %}
+            %%
+            
+            "a"|"A"   {return A;}
+            "b"|"B"   {return B;}
+            "c"|"C"   {return C;}
+            "d"|"D"   {return D;}
+                
+            [\t]{;}            
+            [\n]{return 0;}
+                {reutn yytext[0];}
+            %%
+            int yywrap(){
+                return 1;
+            }
+            
+
+        </code>
+    </pre>
+      <button onclick="copyToClipboard('codeBlock7')">AnBnCnDn</button>
+    </div>
+
+
+
+
+
+
+
+
+
+    <!-- Add more code blocks and buttons as needed -->
+
+    <script>
+      function copyToClipboard(elementId) {
+        // Get the text content of the code block
+        var codeToCopy = document.getElementById(elementId).innerText;
+
+        // Create a temporary textarea element and set its value to the code to be copied
+        var tempTextArea = document.createElement("textarea");
+        tempTextArea.value = codeToCopy;
+
+        // Append the textarea to the document
+        document.body.appendChild(tempTextArea);
+
+        // Select the text in the textarea
+        tempTextArea.select();
+        tempTextArea.setSelectionRange(0, 99999); // For mobile devices
+
+        // Copy the selected text to the clipboard
+        document.execCommand("copy");
+
+        // Remove the temporary textarea
+        document.body.removeChild(tempTextArea);
+
+        // Provide some visual feedback (optional)
+        alert("Code copied to clipboard:\n" + codeToCopy);
+      }
+    </script>
+  </body>
+</html>
